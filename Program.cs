@@ -7,6 +7,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<BookstoreDbContex>();
 builder.Services.AddTransient<IPublishersRespository, PublishersRespository>();
 builder.Services.AddTransient<IAuthorsRepository, AuthorsRepository>();
+builder.Services.AddTransient<IBooksRepository, BooksRepository>();
+
 
 var app = builder.Build();
 
