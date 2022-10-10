@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Dtos\Authors\" />
     <Folder Include="Data\Dtos\Books\" />
   </ItemGroup>
 

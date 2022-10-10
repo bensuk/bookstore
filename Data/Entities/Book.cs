@@ -10,6 +10,6 @@
         public DateTime AddedDate { get; set; }
         public DateTime? LastUpdated { get; set; }
 
-        public Publisher Publisher { get; set; }
+        public Author Author { get; set; }
     }
 }

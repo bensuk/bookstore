@@ -1,5 +1,6 @@
 ﻿using bookstore.Data.Dtos.Publishers;
 using bookstore.Data.Entities;
+using bookstore.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace bookstore.Data.Repositories
@@ -27,7 +28,6 @@ namespace bookstore.Data.Repositories
             return await bookstoreDbContex.Publishers.FirstOrDefaultAsync(x => x.Id == publisherId);
         }
 
-        //sita padaryti su pagenation
         public async Task<IReadOnlyList<Publisher>> GetManyAsync()
         {
             return await bookstoreDbContex.Publishers.ToListAsync();

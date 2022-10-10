@@ -8,6 +8,6 @@
         public DateTime BornDate { get; set; }
         public string Nationality { get; set; }
 
-        public Book Book { get; set; }
+        public Publisher Publisher { get; set; }
     }
 }

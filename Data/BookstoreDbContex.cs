@@ -11,11 +11,7 @@ namespace bookstore.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //perkelti i appsettings
             optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=BookstoreDB");
         }
-
-
-
     }
 }

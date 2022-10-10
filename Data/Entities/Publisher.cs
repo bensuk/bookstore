@@ -8,6 +8,5 @@
         public int Founded  { get; set; }
         public bool IsActive { get; set; }
         public int? NonActiveSince { get; set; }
-
     }
 }
