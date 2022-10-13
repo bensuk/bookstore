@@ -20,9 +20,9 @@ namespace bookstore.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<AuthorDto>> GetAll()
+        public async Task<IEnumerable<AuthorDto>> GetAll(int publisherId)
         {
-            var authors = await authorsRepository.GetManyAsync();
+            var authors = await authorsRepository.GetManyAsync(publisherId);
 
             return authors.Select(x => new AuthorDto(x.Id, x.FirstName, x.LastName, x.BornDate, x.Nationality));
         }
@@ -30,10 +30,9 @@ namespace bookstore.Controllers
         [HttpGet("{authorId}")]
         public async Task<ActionResult<AuthorDto>> Get(int publisherId, int authorId)
         {
-            var publisher = await publishersRespository.GetAsync(publisherId);
-            var author = await authorsRepository.GetAsync(authorId);
+            var author = await authorsRepository.GetAsync(publisherId, authorId);
 
-            if (publisher == null || author == null)
+            if (author == null)
                 return NotFound();
 
             return new AuthorDto(author.Id, author.FirstName, author.LastName, author.BornDate, author.Nationality);
@@ -65,10 +64,9 @@ namespace bookstore.Controllers
         [HttpPut("{authorId}")]
         public async Task<ActionResult<AuthorDto>> Update(UpdateAuthorDto updateAuthorDto, int authorId, int publisherId)
         {
-            var publisher = await publishersRespository.GetAsync(publisherId);
-            var author = await authorsRepository.GetAsync(authorId);
+            var author = await authorsRepository.GetAsync(publisherId, authorId);
 
-            if (publisher == null || author == null)
+            if (author == null)
                 return NotFound();
 
             author.FirstName = updateAuthorDto.FirstName;
@@ -82,10 +80,9 @@ namespace bookstore.Controllers
         [HttpDelete("{authorId}")]
         public async Task<ActionResult> Delete(int publisherId, int authorId)
         {
-            var publisher = await publishersRespository.GetAsync(publisherId);
-            var author = await authorsRepository.GetAsync(authorId);
+            var author = await authorsRepository.GetAsync(publisherId, authorId);
 
-            if (publisher == null || author == null)
+            if (author == null)
                 return NotFound();
 
             await authorsRepository.DeleteAsync(author);

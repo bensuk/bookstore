@@ -22,9 +22,9 @@ namespace bookstore.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<BookDto>> GetAll()
+        public async Task<IEnumerable<BookDto>> GetAll(int publisherId, int authorId)
         {
-            var books = await booksRepository.GetManyAsync();
+            var books = await booksRepository.GetManyAsync(publisherId, authorId);
 
             return books.Select(x => new BookDto(x.Id, x.Name, x.ReleaseDate, x.Description));
         }
@@ -32,11 +32,9 @@ namespace bookstore.Controllers
         [HttpGet("{bookId}")]
         public async Task<ActionResult<BookDto>> Get(int publisherId, int authorId, int bookId)
         {
-            var publisher = await publishersRespository.GetAsync(publisherId);
-            var author = await authorsRepository.GetAsync(authorId);
-            var book = await booksRepository.GetAsync(bookId);
+            var book = await booksRepository.GetAsync(publisherId, authorId, bookId);
 
-            if (publisher == null || author == null || book == null)
+            if (book == null)
                 return NotFound();
 
             return new BookDto(book.Id, book.Name, book.ReleaseDate, book.Description);
@@ -46,7 +44,7 @@ namespace bookstore.Controllers
         public async Task<ActionResult<BookDto>> Create(int publisherId, int authorId, CreateBookDto createBookDto)
         {
             var publisher = await publishersRespository.GetAsync(publisherId);
-            var author = await authorsRepository.GetAsync(authorId);
+            var author = await authorsRepository.GetAsync(publisherId, authorId);
 
             if (publisher == null || author == null)
                 return NotFound();
@@ -70,11 +68,9 @@ namespace bookstore.Controllers
         [HttpPut("{bookId}")]
         public async Task<ActionResult<BookDto>> Update(int publisherId, int authorId, int bookId, UpdateBookDto updateBookDto)
         {
-            var publisher = await publishersRespository.GetAsync(publisherId);
-            var author = await authorsRepository.GetAsync(authorId);
-            var book = await booksRepository.GetAsync(bookId);
+            var book = await booksRepository.GetAsync(publisherId, authorId, bookId);
 
-            if (publisher == null || author == null || book == null)
+            if (book == null)
                 return NotFound();
 
             book.Description = updateBookDto.Description;
@@ -87,11 +83,9 @@ namespace bookstore.Controllers
         [HttpDelete("{bookId}")]
         public async Task<ActionResult> Delete(int publisherId, int authorId, int bookId)
         {
-            var publisher = await publishersRespository.GetAsync(publisherId);
-            var author = await authorsRepository.GetAsync(authorId);
-            var book = await booksRepository.GetAsync(bookId);
+            var book = await booksRepository.GetAsync(publisherId, authorId, bookId);
 
-            if (publisher == null || author == null || book == null)
+            if (book == null)
                 return NotFound();
 
             await booksRepository.DeleteAsync(book);

@@ -7,8 +7,8 @@ namespace bookstore.Data.Repositories
     {
         Task CreateAsync(Book book);
         Task DeleteAsync(Book book);
-        Task<Book?> GetAsync(int bookId);
-        Task<IReadOnlyList<Book>> GetManyAsync();
+        Task<Book?> GetAsync(int publisherId, int authorId, int bookId);
+        Task<IReadOnlyList<Book>> GetManyAsync(int publisherId, int authorId);
         Task UpdateAsync(Book book);
     }
 
@@ -21,14 +21,14 @@ namespace bookstore.Data.Repositories
             this.bookstoreDbContex = bookstoreDbContex;
         }
 
-        public async Task<Book?> GetAsync(int bookId)
+        public async Task<Book?> GetAsync(int publisherId, int authorId, int bookId)
         {
-            return await bookstoreDbContex.Books.FirstOrDefaultAsync(x => x.Id == bookId);
+            return await bookstoreDbContex.Books.FirstOrDefaultAsync(x => x.Author.Publisher.Id == publisherId && x.Author.Id == authorId && x.Id == bookId);
         }
 
-        public async Task<IReadOnlyList<Book>> GetManyAsync()
+        public async Task<IReadOnlyList<Book>> GetManyAsync(int publisherId, int authorId)
         {
-            return await bookstoreDbContex.Books.ToListAsync();
+            return await bookstoreDbContex.Books.Where(x => x.Author.Publisher.Id == publisherId && x.Author.Id == authorId).ToListAsync();
         }
 
         public async Task CreateAsync(Book book)
