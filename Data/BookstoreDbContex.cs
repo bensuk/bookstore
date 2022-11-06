@@ -1,9 +1,11 @@
-﻿using bookstore.Data.Entities;
+﻿using bookstore.Auth.Model;
+using bookstore.Data.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace bookstore.Data
 {
-    public class BookstoreDbContex : DbContext
+    public class BookstoreDbContex : IdentityDbContext<BookstoreUser>
     {
         public DbSet<Publisher> Publishers { get; set; }
         public DbSet<Author> Authors { get; set; }

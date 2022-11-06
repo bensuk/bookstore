@@ -1,4 +1,7 @@
-﻿namespace bookstore.Data.Entities
+﻿using bookstore.Auth.Model;
+using System.ComponentModel.DataAnnotations;
+
+namespace bookstore.Data.Entities
 {
     public class Author
     {
@@ -9,5 +12,9 @@
         public string Nationality { get; set; }
 
         public Publisher Publisher { get; set; }
+
+        //[Required]
+        public string? UserId { get; set; }
+        public BookstoreUser User { get; set; }
     }
 }

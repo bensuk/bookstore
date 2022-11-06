@@ -1,4 +1,7 @@
-﻿namespace bookstore.Data.Entities
+﻿using bookstore.Auth.Model;
+using System.ComponentModel.DataAnnotations;
+
+namespace bookstore.Data.Entities
 {
     public class Book
     {
@@ -11,5 +14,9 @@
         public DateTime? LastUpdated { get; set; }
 
         public Author Author { get; set; }
+
+        //[Required]
+        public string? UserId { get; set; }
+        public BookstoreUser User { get; set; }
     }
 }
