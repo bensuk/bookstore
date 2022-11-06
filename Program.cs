@@ -36,6 +36,9 @@ builder.Services.AddTransient<IBooksRepository, BooksRepository>();
 
 builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
 
+builder.Services.AddScoped<AuthDbSeeder>();
+
+
 
 
 
@@ -48,5 +51,8 @@ app.UseRouting();
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+
+var dbSeeder = app.Services.CreateScope().ServiceProvider.GetRequiredService<AuthDbSeeder>();
+await dbSeeder.SeedAsync();
 
 app.Run();
