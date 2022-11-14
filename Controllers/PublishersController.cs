@@ -1,7 +1,11 @@
-﻿using bookstore.Data.Dtos.Publishers;
+﻿using bookstore.Auth.Model;
+using bookstore.Data.Dtos.Publishers;
 using bookstore.Data.Entities;
 using bookstore.Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
 
 namespace bookstore.Controllers
 {
@@ -10,10 +14,12 @@ namespace bookstore.Controllers
     public class PublishersController : ControllerBase
     {
         private readonly IPublishersRespository publishersRespository;
+        private readonly IAuthorizationService authorizationService;
 
-        public PublishersController(IPublishersRespository publishersRespository)
+        public PublishersController(IPublishersRespository publishersRespository, IAuthorizationService authorizationService)
         {
             this.publishersRespository = publishersRespository;
+            this.authorizationService = authorizationService;
         }
 
         [HttpGet]
@@ -37,6 +43,7 @@ namespace bookstore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = BookstoreRoles.User)]
         public async Task<ActionResult<PublisherDto>> Create(CreatePublisherDto createPublisherDto)
         {
             var publisher = new Publisher
@@ -45,7 +52,8 @@ namespace bookstore.Controllers
                 Country = createPublisherDto.Country,
                 Founded = createPublisherDto.Founded,
                 IsActive = createPublisherDto.NonActiveSince is null ? true : false,
-                NonActiveSince = createPublisherDto.NonActiveSince
+                NonActiveSince = createPublisherDto.NonActiveSince,
+                UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
             };
 
             await publishersRespository.CreateAsync(publisher);
@@ -54,14 +62,21 @@ namespace bookstore.Controllers
                 publisher.Name, publisher.Country, publisher.Founded, publisher.IsActive, publisher.NonActiveSince));
         }
 
-        [HttpPut]
-        [Route("{publisherId}")]
+        [HttpPut("{publisherId}")]
+        [Authorize(Roles = BookstoreRoles.User)]
         public async Task<ActionResult<PublisherDto>> Update(int publisherId, UpdatePublisherDto updatePublisherDto)
         {
             var publisher = await publishersRespository.GetAsync(publisherId);
 
             if (publisher == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, publisher, PolicyNames.ResourceOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
 
             publisher.NonActiveSince = updatePublisherDto.NonActiveSince;
             publisher.IsActive = publisher.NonActiveSince is null ? true : false;
@@ -74,12 +89,20 @@ namespace bookstore.Controllers
 
         [HttpDelete]
         [Route("{publisherId}")]
+        [Authorize(Roles = BookstoreRoles.User)]
         public async Task<ActionResult> Delete(int publisherId)
         {
             var publisher = await publishersRespository.GetAsync(publisherId);
 
             if (publisher == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, publisher, PolicyNames.ResourceOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
 
             await publishersRespository.DeleteAsync(publisher);
 

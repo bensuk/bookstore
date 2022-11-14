@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace bookstore.Data.Entities
 {
-    public class Book
+    public class Book : IUserOwnedResource
     {
         public int Id { get; set; }
         public string Name { get; set; }

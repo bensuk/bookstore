@@ -1,5 +1,6 @@
 ﻿using bookstore.Auth;
 using bookstore.Auth.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 namespace bookstore.Controllers
 {
     [ApiController]
+    [AllowAnonymous]
     //[Route("empty")]
     public class AuthController : ControllerBase
     {
@@ -20,8 +22,9 @@ namespace bookstore.Controllers
         }
 
 
-        [HttpPost]
-        [Route("register")]
+        //[HttpPost]
+        //[Route("register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterUserDto registerUserDto)
         {
             var user = await userManager.FindByNameAsync(registerUserDto.UserName);
@@ -45,8 +48,9 @@ namespace bookstore.Controllers
             return CreatedAtAction(nameof(Register), new UserDto(newUser.Id, newUser.UserName, newUser.Email));
         }
 
-        [HttpPost]
-        [Route("login")]
+        //[HttpPost]
+        //[Route("login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(LoginUserDto loginUserDto)
         {
             var user = await userManager.FindByNameAsync(loginUserDto.UserName);

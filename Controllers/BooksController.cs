@@ -1,8 +1,11 @@
-﻿using bookstore.Data.Dtos.Books;
+﻿using bookstore.Auth.Model;
+using bookstore.Data.Dtos.Books;
 using bookstore.Data.Entities;
 using bookstore.Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
 
 namespace bookstore.Controllers
 {
@@ -13,12 +16,14 @@ namespace bookstore.Controllers
         private readonly IPublishersRespository publishersRespository;
         private readonly IAuthorsRepository authorsRepository;
         private readonly IBooksRepository booksRepository;
+        private readonly IAuthorizationService authorizationService;
 
-        public BooksController(IPublishersRespository publishersRespository, IAuthorsRepository authorsRepository, IBooksRepository booksRepository)
+        public BooksController(IPublishersRespository publishersRespository, IAuthorsRepository authorsRepository, IBooksRepository booksRepository, IAuthorizationService authorizationService)
         {
             this.publishersRespository = publishersRespository;
             this.authorsRepository = authorsRepository;
             this.booksRepository = booksRepository;
+            this.authorizationService = authorizationService;
         }
 
         [HttpGet]
@@ -41,6 +46,7 @@ namespace bookstore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = BookstoreRoles.User)]
         public async Task<ActionResult<BookDto>> Create(int publisherId, int authorId, CreateBookDto createBookDto)
         {
             var publisher = await publishersRespository.GetAsync(publisherId);
@@ -56,7 +62,8 @@ namespace bookstore.Controllers
                 ReleaseDate = createBookDto.ReleaseDate,
                 Description = createBookDto.Description,
                 AddedDate = DateTime.UtcNow,
-                Author = author
+                Author = author,
+                UserId = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
             };
 
             await booksRepository.CreateAsync(book);
@@ -66,12 +73,20 @@ namespace bookstore.Controllers
         }
 
         [HttpPut("{bookId}")]
+        [Authorize(Roles = BookstoreRoles.User)]
         public async Task<ActionResult<BookDto>> Update(int publisherId, int authorId, int bookId, UpdateBookDto updateBookDto)
         {
             var book = await booksRepository.GetAsync(publisherId, authorId, bookId);
 
             if (book == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, book, PolicyNames.ResourceOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
 
             book.Description = updateBookDto.Description;
 
@@ -81,12 +96,20 @@ namespace bookstore.Controllers
         }
 
         [HttpDelete("{bookId}")]
+        [Authorize(Roles = BookstoreRoles.User)]
         public async Task<ActionResult> Delete(int publisherId, int authorId, int bookId)
         {
             var book = await booksRepository.GetAsync(publisherId, authorId, bookId);
 
             if (book == null)
                 return NotFound();
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, book, PolicyNames.ResourceOwner);
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
 
             await booksRepository.DeleteAsync(book);
 

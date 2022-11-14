@@ -34,7 +34,7 @@ namespace bookstore.Data
             if(adminExist == null)
             {
                 //cia gali buti, kad blogas passwordas
-                var createAdminResult = await userManager.CreateAsync(newAdminUser, "admin");
+                var createAdminResult = await userManager.CreateAsync(newAdminUser, "admin123");
                 if (createAdminResult.Succeeded)
                 {
                     await userManager.AddToRolesAsync(newAdminUser, BookstoreRoles.All);
