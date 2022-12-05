@@ -34,6 +34,8 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]));
 });
 
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
 builder.Services.AddDbContext<BookstoreDbContex>();
 builder.Services.AddTransient<IPublishersRespository, PublishersRespository>();
 builder.Services.AddTransient<IAuthorsRepository, AuthorsRepository>();
@@ -50,6 +52,9 @@ var app = builder.Build();
 
 app.UseRouting();
 app.MapControllers();
+
+app.UseCors();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
